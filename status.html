@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connection Status</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card center">
+      <h2>Connection Status</h2>
+      <div style="margin-top:10px" class="small">
+        <div>Username: $(username)</div>
+        <div>IP: $(ip)</div>
+        <div>MAC: $(mac)</div>
+        <div>Session time left: $(session-time-left)</div>
+        <div>Bytes in: $(bytes-in)</div>
+        <div>Bytes out: $(bytes-out)</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <a href="$(link-logout)" class="btn">Logout</a>
+        <a href="$(link-orig)" class="btn ghost">Continue browsing</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+invalid-username=Invalid username or voucher.
+invalid-password=Invalid password.
+user-not-found=User not found.
+expired=Your voucher has expired.
