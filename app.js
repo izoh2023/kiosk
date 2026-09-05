@@ -37,10 +37,8 @@ function escapeHtml(s) {
 }
 
 function chapHash(pwd) {
-  const c = document.getElementById('chap-id');
-  if (c && window.hexMD5) {
-    const ch = document.getElementById('chap-challenge');
-    return window.hexMD5(c.value + pwd + (ch ? ch.value : ''));
+  if (window._chapId && window.hexMD5) {
+    return window.hexMD5(window._chapId + pwd + (window._chapChallenge || ''));
   }
   return pwd;
 }

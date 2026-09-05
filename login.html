@@ -8,11 +8,6 @@
   <script src="md5.js"></script>
 </head>
 <body>
-  $(if chap-id)
-  <input type="hidden" id="chap-id" value="$(chap-id)" />
-  <input type="hidden" id="chap-challenge" value="$(chap-challenge)" />
-  $(endif)
-
   <div class="container">
     <div class="layout">
 
@@ -164,11 +159,13 @@
   </div>
 
   <script>
+    $(if chap-id)
+    window._chapId = '$(chap-id)';
+    window._chapChallenge = '$(chap-challenge)';
+    $(endif)
     function doLogin() {
-      var c = document.getElementById('chap-id');
-      if (c && window.hexMD5) {
-        var ch = document.getElementById('chap-challenge');
-        document.login.password.value = hexMD5(c.value + document.getElementById('pwd').value + (ch ? ch.value : ''));
+      if (window._chapId && window.hexMD5) {
+        document.login.password.value = hexMD5(window._chapId + document.getElementById('pwd').value + window._chapChallenge);
       }
       return true;
     }
