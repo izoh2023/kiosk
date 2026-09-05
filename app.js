@@ -36,6 +36,15 @@ function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function chapHash(pwd) {
+  const c = document.getElementById('chap-id');
+  if (c && window.hexMD5) {
+    const ch = document.getElementById('chap-challenge');
+    return window.hexMD5(c.value + pwd + (ch ? ch.value : ''));
+  }
+  return pwd;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PACKAGE RENDERING  (unchanged)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -218,7 +227,7 @@ function showVoucher(receiptNo, duration) {
     form.style.display = 'none';
 
     const u   = document.createElement('input'); u.name = 'username'; u.value = receiptNo;
-    const p   = document.createElement('input'); p.name = 'password'; p.value = receiptNo;
+    const p   = document.createElement('input'); p.name = 'password'; p.value = chapHash(receiptNo);
     const dst = document.createElement('input'); dst.name = 'dst';    dst.value = '$(link-orig)';
     form.appendChild(u); form.appendChild(p); form.appendChild(dst);
     document.body.appendChild(form);
@@ -469,7 +478,7 @@ function _adAutoLogin() {
 
   const fields = {
     username: _adUser.username,
-    password: _adUser.password,
+    password: chapHash(_adUser.password),
     dst: new URLSearchParams(window.location.search).get('dst') || 'http://google.com',
   };
   for (const [k, v] of Object.entries(fields)) {

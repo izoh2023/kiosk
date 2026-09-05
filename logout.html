@@ -2,57 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Logged Out</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .logout-card {
-      background: #fff;
-      border-radius: 1rem;
-      padding: clamp(16px, 5vw, 32px);
-      text-align: center;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-      max-width: 400px;
-      width: 90%;
-    }
-    h2 {
-      font-size: clamp(1.25rem, 4vw, 1.75rem);
-      margin-bottom: 0.5em;
-    }
-    p {
-      font-size: clamp(0.9rem, 3vw, 1rem);
-      margin-bottom: 1em;
-      color: #555;
-    }
-    a {
-      display: inline-block;
-      background: #4CAF50;
-      color: white;
-      text-decoration: none;
-      padding: 0.6em 1.2em;
-      border-radius: 0.5em;
-      font-size: clamp(0.9rem, 3vw, 1rem);
-      transition: background 0.2s;
-    }
-    a:hover {
-      background: #43a047;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="logout-card">
-    <h2>Logged Out</h2>
-    <p>Thanks for using our service.</p>
-    <p><a href="$(link-login-only)">Login Again</a></p>
+  <div class="container" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+    <div class="card center" style="width:100%;padding:40px 24px">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;color:var(--text-dim)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <h2 style="margin:0 0 8px;font-size:1.3rem;font-weight:700">Logged Out</h2>
+      <p class="small" style="margin:0 0 24px">Thanks for using our service.</p>
+      <a href="$(link-login-only)" class="btn" style="width:100%">Login Again</a>
+    </div>
   </div>
 </body>
 </html>

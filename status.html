@@ -1,24 +1,63 @@
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connection Status</title>
-<link rel="stylesheet" href="styles.css">
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Connection Status</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+    .stat-item {
+      background:rgba(0,0,0,0.25);
+      border:1px solid var(--border);
+      border-radius:var(--radius-sm);
+      padding:12px;
+    }
+    .stat-label { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-dim); margin-bottom:4px; }
+    .stat-value { font-size:0.95rem; font-weight:600; color:var(--text); word-break:break-all; }
+    .stat-item.wide { grid-column:1/-1; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card center">
-      <h2>Connection Status</h2>
-      <div style="margin-top:10px" class="small">
-        <div>Username: $(username)</div>
-        <div>IP: $(ip)</div>
-        <div>MAC: $(mac)</div>
-        <div>Session time left: $(session-time-left)</div>
-        <div>Bytes in: $(bytes-in)</div>
-        <div>Bytes out: $(bytes-out)</div>
+  <div class="container" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+    <div class="card" style="width:100%">
+      <div class="card-title" style="text-align:center">Connection Status</div>
+
+      <div style="text-align:center;margin-bottom:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;box-shadow:0 0 8px rgba(16,185,129,0.4)"></div>
+        <span style="font-weight:600;font-size:0.9rem">Online</span>
       </div>
 
-      <div style="margin-top:12px">
-        <a href="$(link-logout)" class="btn">Logout</a>
-        <a href="$(link-orig)" class="btn ghost">Continue browsing</a>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-label">Username</div>
+          <div class="stat-value">$(username)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Time Left</div>
+          <div class="stat-value">$(session-time-left)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">IP Address</div>
+          <div class="stat-value">$(ip)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">MAC</div>
+          <div class="stat-value">$(mac)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Downloaded</div>
+          <div class="stat-value">$(bytes-in)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Uploaded</div>
+          <div class="stat-value">$(bytes-out)</div>
+        </div>
+      </div>
+
+      <div class="form-actions" style="margin-top:4px">
+        <a href="$(link-logout)" class="btn" style="flex:1">Logout</a>
+        <a href="$(link-orig)" class="btn ghost" style="flex:1">Continue</a>
       </div>
     </div>
   </div>

@@ -1,306 +1,175 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Welcome - Internet Access</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="md5.js"></script>
-    <style>
-      /* ── Ad card specific styles ── */
-      .ad_card { display: flex; flex-direction: column; gap: 14px; }
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>$(identity) — Connect</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="md5.js"></script>
+</head>
+<body>
+  $(if chap-id)
+  <input type="hidden" id="chap-id" value="$(chap-id)" />
+  <input type="hidden" id="chap-challenge" value="$(chap-challenge)" />
+  $(endif)
 
-      .ad-step { display: none; flex-direction: column; gap: 10px; }
-      .ad-step.active { display: flex; }
+  <div class="container">
+    <div class="layout">
 
-      .ad-watch-btn {
-        width: 100%;
-        background: #1a9e6e;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 11px 16px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        letter-spacing: 0.01em;
-        transition: background 0.15s;
-      }
-      .ad-watch-btn:hover:not(:disabled) { background: #138055; }
-      .ad-watch-btn:disabled { background: #ccc; color: #888; cursor: not-allowed; }
+      <!-- ── Brand ── -->
+      <div class="brand-header">
+        <div class="logo"></div>
+        <div class="hotspotName">$(identity)</div>
+      </div>
 
-      .ad-badge {
-        display: inline-block;
-        padding: 2px 9px;
-        border-radius: 100px;
-        font-size: 11px;
-        font-weight: 600;
-        background: #d4f0e4;
-        color: #0d6642;
-      }
-
-      /* Ad modal */
-      #ad-modal { display: none; }
-      #ad-modal.show { display: flex; }
-
-      .ad-media-wrap {
-        position: relative;
-        background: #111;
-        border-radius: 8px;
-        overflow: hidden;
-        width: 100%;
-        aspect-ratio: 16/9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .ad-media-wrap video,
-      .ad-media-wrap img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 8px;
-      }
-      .ad-countdown-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0,0,0,0.65);
-        color: #fff;
-        border-radius: 20px;
-        padding: 4px 10px;
-        font-size: 13px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
-      .ad-countdown-dot {
-        width: 7px; height: 7px;
-        border-radius: 50%;
-        background: #1a9e6e;
-        animation: pulse-dot 1s ease-in-out infinite;
-      }
-      @keyframes pulse-dot {
-        0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-      }
-      .ad-progress-bar-wrap {
-        height: 4px;
-        background: #e5e5e5;
-        border-radius: 2px;
-        overflow: hidden;
-        width: 100%;
-      }
-      .ad-progress-bar-fill {
-        height: 100%;
-        width: 0%;
-        background: #1a9e6e;
-        border-radius: 2px;
-        transition: width 1s linear;
-      }
-      .ad-success-check {
-        width: 52px; height: 52px;
-        border-radius: 50%;
-        background: #d4f0e4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        margin: 0 auto 4px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="layout">
-
-        <!-- ── Voucher card ── -->
-        <div class="card">
-          <div class="voucher_card">
-            <div class="brand">
-              <div class="logo_name">
-                <div class="logo"></div>
-                <div class="hotspotName">$(identity)</div>
+      <!-- ── Voucher login ── -->
+      <div class="card">
+        <div class="card-title">Sign in</div>
+        <div class="voucher_card">
+          <div class="voucher">
+            <form name="login" action="$(link-login-only)" method="post" onsubmit="return doLogin()">
+              <input type="hidden" name="dst" value="$(link-orig)" />
+              <div class="form-row">
+                <input name="username" id="uname" class="input" placeholder="Voucher code" autocomplete="off" autocapitalize="off" />
               </div>
-            </div>
-
-            <div class="voucher">
-              <h3>Have a voucher?</h3>
-              <form action="$(link-login-only)" method="post" class="small form" style="width:100%;">
-                <input type="hidden" name="dst" value="$(link-orig)" />
-                <div class="form-row">
-                  <input name="username" class="input" placeholder="Voucher code" />
-                </div>
-                <div class="form-row">
-                  <input type="password" name="password" class="input" placeholder="Password (if needed)" />
-                </div>
-                <div style="display:flex;gap:8px;justify-content:center;">
-                  <button type="submit" class="btn">Login</button>
-                  <a href="$(link-status)" class="btn ghost">Status</a>
-                </div>
-              </form>
-            </div>
-
-            <div class="notice small">
-              Need help? Contact the attendant or call <strong id="tel"></strong>
-            </div>
+              <div class="form-row">
+                <input type="password" name="password" id="pwd" class="input" placeholder="Password (if needed)" />
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn" style="flex:1">Connect</button>
+                <a href="$(link-status)" class="btn ghost">Status</a>
+              </div>
+            </form>
           </div>
         </div>
-
-        <!-- ── Packages card ── -->
-        <div class="card">
-          <div class="package_card">
-            <h2 style="text-align:center;">Available Packages</h2>
-            <div id="packs" class="pack-grid small">
-              <div class="small">Loading packages…</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Free WiFi / Ad card ── -->
-        <div class="card">
-          <div class="ad_card">
-
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <h3 style="margin:0;">Free WiFi</h3>
-              <span class="ad-badge">Ad-supported</span>
-            </div>
-
-            <p class="small" style="margin:0;color:#888;">
-              Watch a short ad and get free internet — no voucher needed.
-            </p>
-
-            <!-- step: start -->
-            <div class="ad-step active" id="ad-step-start">
-              <button class="ad-watch-btn" onclick="adFlowStart()">
-                ▶&nbsp; Watch ad · get free WiFi
-              </button>
-            </div>
-
-            <!-- step: loading -->
-            <div class="ad-step" id="ad-step-loading">
-              <p class="small" style="color:#888;margin:0;">Finding an ad for you…</p>
-            </div>
-
-            <!-- step: done (shown after modal closes) -->
-            <div class="ad-step" id="ad-step-done">
-              <div class="ad-success-check">✓</div>
-              <p style="margin:0;font-weight:600;text-align:center;">You're connected!</p>
-              <p class="small" style="margin:0;color:#888;text-align:center;">
-                <span id="ad-reward-text">Free</span> WiFi session activated.
-              </p>
-            </div>
-
-            <!-- step: already redeemed -->
-            <div class="ad-step" id="ad-step-used">
-              <p class="small" style="color:#b06000;margin:0;">
-                ⚠ You've already used a free session today. Come back tomorrow!
-              </p>
-            </div>
-
-            <!-- step: error -->
-            <div class="ad-step" id="ad-step-error">
-              <p class="small" style="color:#c00;margin:0;" id="ad-error-msg">Something went wrong.</p>
-              <button class="btn ghost" onclick="adFlowReset()">Try again</button>
-            </div>
-
-          </div>
-        </div>
-
-      </div><!-- /.layout -->
-
-      <div class="footer">Connect responsibly • $(identity)</div>
-    </div><!-- /.container -->
-
-    <!-- ── Buy modal ── -->
-    <div id="modal" class="modal">
-      <div class="modal-card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h3 id="modal-title">Buy</h3>
-          <button class="modal-close small-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-              <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"/>
-            </svg>
-          </button>
-        </div>
-        <p id="modal-desc" class="small"></p>
-        <div class="form-row">
-          <div><strong>Price:</strong> <span id="modal-price"></span></div>
-        </div>
-        <form id="pay-form">
-          <div class="form-row">
-            <label class="small">Phone number</label>
-            <input id="phone" class="input" name="phone" placeholder="+2547…" style="width:100%;" />
-          </div>
-          <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button type="submit" id="pay-submit" class="btn">Pay</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- ── Voucher show modal ── -->
-    <div id="voucher-card" class="modal" aria-hidden="true">
-      <div class="modal-card center">
-        <h3>Voucher</h3>
-        <div class="code-box" id="voucher-code">—</div>
-        <div class="small" style="margin-top:8px">Expires in: <span id="voucher-expiry">—</span></div>
-        <div style="margin-top:12px">
-          <a class="small-link" onclick="location.reload()">Back</a>
+        <div class="notice">
+          Need help? Call <strong id="tel"></strong>
         </div>
       </div>
+
+      <!-- ── Packages ── -->
+      <div class="card">
+        <div class="card-title">Plans</div>
+        <div class="package_card">
+          <div id="packs" class="pack-grid">
+            <div class="small" style="grid-column:1/-1;text-align:center;padding:12px 0">Loading plans&hellip;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Free WiFi / Ad ── -->
+      <div class="card">
+        <div class="ad_card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="card-title" style="margin:0">Free WiFi</div>
+            <span class="ad-badge">Ad-supported</span>
+          </div>
+          <p class="small" style="margin:0">Watch a short ad and browse free &mdash; no voucher needed.</p>
+
+          <div class="ad-step active" id="ad-step-start">
+            <button class="ad-watch-btn" onclick="adFlowStart()">Watch ad &middot; get free WiFi</button>
+          </div>
+          <div class="ad-step" id="ad-step-loading">
+            <p class="small" style="margin:0">Finding an ad&hellip;</p>
+          </div>
+          <div class="ad-step" id="ad-step-done">
+            <div class="ad-success-check">&#10003;</div>
+            <p style="margin:0;font-weight:600;text-align:center">You're connected!</p>
+            <p class="small" style="margin:0;text-align:center"><span id="ad-reward-text">Free</span> WiFi activated.</p>
+          </div>
+          <div class="ad-step" id="ad-step-used">
+            <p class="small" style="color:#b06000;margin:0">You've already used a free session today.</p>
+          </div>
+          <div class="ad-step" id="ad-step-error">
+            <p class="small" style="color:var(--danger);margin:0" id="ad-error-msg">Something went wrong.</p>
+            <button class="btn ghost" onclick="adFlowReset()" style="align-self:start">Try again</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ── Ad player modal ── -->
-    <div id="ad-modal" class="modal">
-      <div class="modal-card" style="max-width:480px;width:100%;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h3 style="margin:0;" id="ad-modal-title">Sponsored</h3>
-          <!-- close only enabled after countdown -->
-          <button id="ad-modal-close" class="modal-close small-link" style="opacity:0.3;pointer-events:none;" onclick="adModalClose()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-              <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"/>
-            </svg>
-          </button>
-        </div>
+    <div class="footer">$(identity)</div>
+  </div>
 
-        <!-- media -->
-        <div class="ad-media-wrap" id="ad-media-wrap">
-          <img  id="ad-img" style="display:none;" alt="advertisement" />
-          <video id="ad-vid" style="display:none;" muted playsinline autoplay></video>
-          <div class="ad-countdown-badge" id="ad-countdown-badge">
-            <div class="ad-countdown-dot"></div>
-            <span id="ad-countdown-text">30</span>s
-          </div>
-        </div>
-
-        <!-- progress -->
-        <div style="margin:10px 0 4px;">
-          <div class="ad-progress-bar-wrap">
-            <div class="ad-progress-bar-fill" id="ad-progress-fill"></div>
-          </div>
-        </div>
-
-        <!-- cta row -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;" class="small">
-          <span style="color:#aaa;">Sponsored content</span>
-          <a id="ad-cta-link" href="#" target="_blank" style="color:#1a9e6e;display:none;font-weight:600;">
-            Learn more →
-          </a>
-        </div>
-
-        <!-- claim btn -->
-        <button class="ad-watch-btn" id="ad-claim-btn" disabled onclick="adFlowClaim()">
-          Watching… please wait
+  <!-- ── Buy modal (slides up from bottom) ── -->
+  <div id="modal" class="modal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 id="modal-title" style="margin:0;font-size:1.05rem">Buy</h3>
+        <button class="modal-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path d="M4.707 3.293 3.293 4.707 10.586 12l-7.293 7.293 1.414 1.414L12 13.414l7.293 7.293 1.414-1.414L13.414 12l7.293-7.293-1.414-1.414L12 10.586 4.707 3.293z"/>
+          </svg>
         </button>
+      </div>
+      <p id="modal-desc" class="small" style="margin:0 0 14px"></p>
+      <div class="form-row">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--accent)">KES <span id="modal-price"></span></div>
+      </div>
+      <form id="pay-form">
+        <div class="form-row">
+          <label class="small">M-Pesa phone number</label>
+          <input id="phone" class="input" name="phone" placeholder="0712 345 678" inputmode="tel" />
+        </div>
+        <button type="submit" id="pay-submit" class="btn" style="width:100%">Pay</button>
+      </form>
+    </div>
+  </div>
 
-        <!-- claiming state -->
-        <p id="ad-claiming-msg" class="small" style="display:none;color:#888;text-align:center;margin-top:8px;">
-          Activating your session…
-        </p>
+  <!-- ── Voucher display ── -->
+  <div id="voucher-card" class="modal" aria-hidden="true">
+    <div class="modal-card center">
+      <h3 style="margin:0 0 14px">Your Voucher</h3>
+      <div class="code-box" id="voucher-code">&mdash;</div>
+      <div class="small" style="margin-top:10px">Expires in: <span id="voucher-expiry">&mdash;</span></div>
+      <div style="margin-top:14px">
+        <a class="small-link" onclick="location.reload()">Back</a>
       </div>
     </div>
+  </div>
 
-    <script type="module" src="app.js"></script>
-  </body>
+  <!-- ── Ad player modal ── -->
+  <div id="ad-modal" class="modal">
+    <div class="modal-card" style="max-width:440px;width:100%">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0;font-size:0.95rem" id="ad-modal-title">Sponsored</h3>
+        <button id="ad-modal-close" class="modal-close" style="opacity:0.3;pointer-events:none" onclick="adModalClose()" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path d="M4.707 3.293 3.293 4.707 10.586 12l-7.293 7.293 1.414 1.414L12 13.414l7.293 7.293 1.414-1.414L13.414 12l7.293-7.293-1.414-1.414L12 10.586 4.707 3.293z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="ad-media-wrap" id="ad-media-wrap">
+        <img id="ad-img" style="display:none" alt="advertisement" />
+        <video id="ad-vid" style="display:none" muted playsinline autoplay></video>
+        <div class="ad-countdown-badge" id="ad-countdown-badge">
+          <div class="ad-countdown-dot"></div>
+          <span id="ad-countdown-text">30</span>s
+        </div>
+      </div>
+      <div style="margin:10px 0 4px">
+        <div class="ad-progress-bar-wrap"><div class="ad-progress-bar-fill" id="ad-progress-fill"></div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px" class="small">
+        <span style="opacity:0.5">Sponsored content</span>
+        <a id="ad-cta-link" href="#" target="_blank" style="color:var(--accent);display:none;font-weight:600">Learn more &rarr;</a>
+      </div>
+      <button class="ad-watch-btn" id="ad-claim-btn" disabled onclick="adFlowClaim()">Watching&hellip;</button>
+      <p id="ad-claiming-msg" class="small" style="display:none;text-align:center;margin-top:8px">Activating your session&hellip;</p>
+    </div>
+  </div>
+
+  <script>
+    function doLogin() {
+      var c = document.getElementById('chap-id');
+      if (c && window.hexMD5) {
+        var ch = document.getElementById('chap-challenge');
+        document.login.password.value = hexMD5(c.value + document.getElementById('pwd').value + (ch ? ch.value : ''));
+      }
+      return true;
+    }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
 </html>
