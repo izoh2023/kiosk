@@ -174,26 +174,27 @@ body {
 }
 
 .package-card::before {
-  /* the tab shape */
-  content: '';
-  position: absolute;
-  top: -10px; /* how far it sticks up */
-  left: 12px;
-  width: 50px;  /* tab width */
-  height: 10px; /* tab height */
-  background: var(--tab-color, #2196F3);
-  border-radius: 6px 6px 0 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* shadow for depth */
+    /* the tab shape */
+    content: '';
+    position: absolute;
+    top: -10px; /* how far it sticks up */
+    left: 12px;
+    width: 50px;  /* tab width */
+    height: 10px; /* tab height */
+    background: var(--tab-color, #2196F3);
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* shadow for depth */
 }
 
 .package-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--tab-color, #2196F3);
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 7px;
+    border-radius: 6px 6px 0 0;
+    background: var(--tab-color, #2196F3);
 }
 
 .package-card:hover {
