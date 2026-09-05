@@ -18,12 +18,15 @@
 
       <!-- ── Brand ── -->
       <div class="brand-header">
-        <div class="logo"></div>
+        <div class="logo-wrap">
+          <div class="logo-glow"></div>
+          <div class="logo"></div>
+        </div>
         <div class="hotspotName">$(identity)</div>
       </div>
 
       <!-- ── Voucher login ── -->
-      <div class="card">
+      <div class="card card--signin">
         <div class="card-title">Sign in</div>
         <div class="voucher_card">
           <div class="voucher">
@@ -48,7 +51,7 @@
       </div>
 
       <!-- ── Packages ── -->
-      <div class="card">
+      <div class="card card--plans">
         <div class="card-title">Plans</div>
         <div class="package_card">
           <div id="packs" class="pack-grid">
@@ -58,7 +61,7 @@
       </div>
 
       <!-- ── Free WiFi / Ad ── -->
-      <div class="card">
+      <div class="card card--wifi">
         <div class="ad_card">
           <div style="display:flex;align-items:center;justify-content:space-between">
             <div class="card-title" style="margin:0">Free WiFi</div>
@@ -92,7 +95,7 @@
     <div class="footer">$(identity)</div>
   </div>
 
-  <!-- ── Buy modal (slides up from bottom) ── -->
+  <!-- ── Buy modal ── -->
   <div id="modal" class="modal">
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
