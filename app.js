@@ -107,13 +107,16 @@ function renderPackages(packs) {
   packs.forEach((p) => {
     const div = document.createElement('div');
     div.className = 'package-card';
-    div.style.setProperty('--tab-color', p.theme || '#2196F3');
+    // Leave --tab-color unset when the package has no custom theme so the
+    // CSS default (a graffiti-style multi-color strip) shows through,
+    // instead of every untethemed package flattening to the same blue.
+    if (p.theme) div.style.setProperty('--tab-color', p.theme);
     const { quotaLabel, durationLabel } = getDescription(p);
 
     div.innerHTML = `
       <h3 class="package-name">${escapeHtml(p.name)}</h3>
       <div class="package-details">${quotaLabel} • ${durationLabel}</div>
-      <div class="package-price">${currency || 'KES'} ${p.price}</div>
+      <div class="package-price"><span class="package-price-currency">${currency || 'KES'}</span> ${p.price}</div>
       <div class="package-actions">
         <button class="btn" data-id="${p.id}">Buy Now</button>
       </div>

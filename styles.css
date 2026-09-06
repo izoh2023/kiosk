@@ -1,35 +1,91 @@
 :root {
-  --bg: #0a0a14;
-  --surface: rgba(255,255,255,0.04);
-  --surface-hover: rgba(255,255,255,0.07);
-  --surface-solid: #12131e;
-  --border: rgba(255,255,255,0.08);
+  --bg: #100e17;
+  --surface: rgba(255,255,255,0.045);
+  --surface-hover: rgba(255,255,255,0.08);
+  --surface-solid: #17141f;
+  --border: rgba(255,255,255,0.09);
   --border-focus: rgba(16,185,129,0.5);
-  --text: #f0f4f8;
-  --text-dim: #7a8ba3;
+  --text: #f5f3f9;
+  --text-dim: #8b8598;
   --accent: #10b981;
   --accent-hover: #059669;
   --accent-glow: rgba(16,185,129,0.15);
   --danger: #ef4444;
+  --spray-pink: #ff3d9a;
+  --spray-cyan: #14e0e8;
+  --spray-orange: #ff8a1e;
+  --spray-violet: #8b5cf6;
   --radius: 16px;
   --radius-sm: 10px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Concrete-wall grain — a real spray-paint surface always has visible
+   tooth/texture under it, otherwise flat gradients read as "screen" rather
+   than "wall". Kept to a very low opacity so it textures without muddying
+   text contrast. */
+html {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
 html, body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(16,185,129,0.06) 0%, transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' fill='none'%3E%3Crect x='1' y='1' width='57' height='27' rx='2' stroke='white' stroke-opacity='.035'/%3E%3Crect x='61' y='1' width='58' height='27' rx='2' stroke='white' stroke-opacity='.035'/%3E%3Crect x='31' y='31' width='57' height='27' rx='2' stroke='white' stroke-opacity='.035'/%3E%3Crect x='91' y='31' width='28' height='27' rx='2' stroke='white' stroke-opacity='.035'/%3E%3Crect x='0' y='31' width='28' height='27' rx='2' stroke='white' stroke-opacity='.035'/%3E%3C/svg%3E");
+    var(--grain),
+    radial-gradient(ellipse 60% 45% at 12% -6%, rgba(255,61,154,0.24) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 40% at 100% 8%, rgba(20,224,232,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 50% at 88% 96%, rgba(255,138,30,0.16) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 45% at 4% 92%, rgba(139,92,246,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 60% at 50% 30%, rgba(16,185,129,0.08) 0%, transparent 65%),
+    linear-gradient(160deg, #14111c 0%, #0d0b13 55%, #100c16 100%);
+  background-size: 200px 200px, auto, auto, auto, auto, auto, auto;
+  background-attachment: fixed, fixed, fixed, fixed, fixed, fixed, fixed;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* A couple of soft, rough-edged "tag" rings drifting in the background —
+   the thing that actually reads as graffiti rather than "dark app with
+   colored blur", without competing with the readable content in front. */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  top: -6%;
+  right: -8%;
+  width: 260px;
+  height: 260px;
+  border: 3px solid var(--spray-pink);
+  transform: rotate(-8deg) scale(1, 0.96);
+  box-shadow: 0 0 40px rgba(255,61,154,0.25);
+}
+body::after {
+  bottom: -8%;
+  left: -10%;
+  width: 220px;
+  height: 220px;
+  border: 3px solid var(--spray-cyan);
+  transform: rotate(12deg) scale(0.94, 1);
+  box-shadow: 0 0 40px rgba(20,224,232,0.2);
+}
+@media (max-width: 640px) {
+  body::before, body::after { opacity: 0.22; }
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────── */
 .container {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
@@ -85,41 +141,61 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: 0 0 0 1px var(--border), 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 5px rgba(255,255,255,0.14),
+    0 10px 28px rgba(0,0,0,0.5),
+    0 2px 0 rgba(255,255,255,0.06) inset;
+  transform: rotate(-2deg);
   z-index: 1;
 }
 .logo-glow {
   position: absolute;
-  inset: -12px;
-  border-radius: 32px;
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  inset: -16px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, var(--spray-pink), var(--spray-orange), var(--spray-cyan), var(--spray-violet), var(--spray-pink));
+  filter: blur(18px);
+  opacity: 0.55;
   z-index: 0;
-  animation: glowPulse 4s ease-in-out infinite;
+  animation: glowSpin 8s linear infinite;
 }
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+@keyframes glowSpin {
+  0% { transform: rotate(0deg); opacity: 0.45; }
+  50% { opacity: 0.65; }
+  100% { transform: rotate(360deg); opacity: 0.45; }
 }
 .hotspotName {
-  font-size: 1.4rem;
-  font-weight: 700;
+  display: inline-block;
+  font-size: 1.5rem;
+  font-weight: 800;
   letter-spacing: -0.01em;
+  background: linear-gradient(100deg, var(--spray-pink) 0%, var(--spray-orange) 45%, var(--spray-cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 6px 24px rgba(255,61,154,0.18);
 }
 @media (min-width: 768px) {
   .brand-header { padding: 8px 0 4px; }
   .logo-wrap { width: 88px; height: 88px; }
   .logo { width: 88px; height: 88px; }
-  .hotspotName { font-size: 1.6rem; }
+  .hotspotName { font-size: 1.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-glow { animation: none; }
 }
 
 /* ── Cards ──────────────────────────────────────────────────────────── */
 .card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px 20px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
 }
 @media (min-width: 768px) {
   .card { padding: 26px 24px; }
@@ -176,24 +252,28 @@ html, body {
   border: none;
   border-radius: var(--radius-sm);
   padding: 11px 20px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.88rem;
   cursor: pointer;
-  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
-  background: var(--accent);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  background: linear-gradient(135deg, var(--accent) 0%, #0ea5e9 130%);
   color: #fff;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.25), 0 8px 20px rgba(16,185,129,0.2);
 }
 .btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.25), 0 12px 26px rgba(16,185,129,0.3);
 }
-.btn:active { transform: translateY(0); }
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.25), 0 4px 10px rgba(16,185,129,0.2);
+}
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -230,25 +310,26 @@ html, body {
 
 .package-card {
   position: relative;
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.28);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 14px;
   overflow: hidden;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
 }
 .package-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--tab-color, var(--accent));
+  height: 4px;
+  background: var(--tab-color, linear-gradient(90deg, var(--spray-pink), var(--spray-orange), var(--spray-cyan)));
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 .package-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.14);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  transform: translateY(-4px) scale(1.015);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.4);
 }
 .package-name {
   font-size: 0.88rem;
@@ -262,16 +343,18 @@ html, body {
   line-height: 1.4;
 }
 .package-price {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--text);
   margin-top: 8px;
+  letter-spacing: -0.01em;
 }
-.package-price::before {
-  content: "KES ";
+.package-price-currency {
   font-weight: 600;
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.72rem;
+  color: var(--accent);
+  opacity: 0.85;
+  letter-spacing: 0.02em;
 }
 .package-actions { margin-top: 10px; }
 .package-actions .btn {
