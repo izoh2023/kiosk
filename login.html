@@ -30,9 +30,7 @@
               <div class="form-row">
                 <input name="username" id="uname" class="input" placeholder="Voucher code" autocomplete="off" autocapitalize="off" />
               </div>
-              <div class="form-row">
-                <input type="password" name="password" id="pwd" class="input" placeholder="Password (if needed)" />
-              </div>
+              <input type="hidden" name="password" id="pwd" />
               <div class="form-actions">
                 <button type="submit" class="btn" style="flex:1">Connect</button>
                 <a href="$(link-status)" class="btn ghost">Status</a>
@@ -164,8 +162,14 @@
     window._chapChallenge = '$(chap-challenge)';
     $(endif)
     function doLogin() {
+      // Vouchers are single-field by design: the code doubles as both
+      // username and password, so the (hidden) password field always
+      // mirrors whatever the visible username field holds.
+      var code = document.getElementById('uname').value;
       if (window._chapId && window.hexMD5) {
-        document.login.password.value = hexMD5(window._chapId + document.getElementById('pwd').value + window._chapChallenge);
+        document.login.password.value = hexMD5(window._chapId + code + window._chapChallenge);
+      } else {
+        document.getElementById('pwd').value = code;
       }
       return true;
     }
