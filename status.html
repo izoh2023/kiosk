@@ -35,7 +35,7 @@
         </div>
         <div class="stat-item">
           <div class="stat-label">Time Left</div>
-          <div class="stat-value">$(session-time-left)</div>
+          <div class="stat-value" id="time-left">$(session-time-left)</div>
         </div>
         <div class="stat-item">
           <div class="stat-label">IP Address</div>
@@ -61,5 +61,33 @@
       </div>
     </div>
   </div>
+  <script>
+    (function(){
+      var el = document.getElementById('time-left');
+      if (!el) return;
+      var raw = el.textContent.trim();
+      var m = raw.match(/(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/);
+      if (!m) return;
+      var total = ((+m[1]||0)*86400) + ((+m[2]||0)*3600) + ((+m[3]||0)*60) + (+m[4]||0);
+      if (total <= 0) return;
+      function fmt(s){
+        var d=Math.floor(s/86400); s%=86400;
+        var h=Math.floor(s/3600); s%=3600;
+        var mn=Math.floor(s/60); s%=60;
+        var parts=[];
+        if(d)parts.push(d+'d');
+        if(h)parts.push(h+'h');
+        if(mn)parts.push(mn+'m');
+        parts.push(Math.floor(s)+'s');
+        return parts.join(' ');
+      }
+      el.textContent = fmt(total);
+      var iv = setInterval(function(){
+        total--;
+        if(total<=0){clearInterval(iv);el.textContent='Expired';return;}
+        el.textContent = fmt(total);
+      }, 1000);
+    })();
+  </script>
 </body>
 </html>

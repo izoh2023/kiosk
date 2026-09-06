@@ -1,4 +1,4 @@
-import { admin_id, logo_filename, phoneNumber, router_id, router_api, admin_api, payment_api, captive_api } from "./config.js";
+import { admin_id, logo_filename, phoneNumber, router_id, router_api, admin_api, payment_api, captive_api, currency } from "./config.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION
@@ -113,7 +113,7 @@ function renderPackages(packs) {
     div.innerHTML = `
       <h3 class="package-name">${escapeHtml(p.name)}</h3>
       <div class="package-details">${quotaLabel} • ${durationLabel}</div>
-      <div class="package-price">${p.price}</div>
+      <div class="package-price">${currency || 'KES'} ${p.price}</div>
       <div class="package-actions">
         <button class="btn" data-id="${p.id}">Buy Now</button>
       </div>
@@ -135,7 +135,7 @@ function onBuyClick(e) {
   const { quotaLabel, durationLabel } = getDescription(selectedPackage);
   el('#modal-title').textContent  = `Buy ${selectedPackage.name}`;
   el('#modal-desc').textContent   = `${quotaLabel} • ${durationLabel}`;
-  el('#modal-price').textContent  = selectedPackage.price_display || selectedPackage.price;
+  el('#modal-price').textContent  = `${currency || 'KES'} ${selectedPackage.price_display || selectedPackage.price}`;
   show(el('#modal'));
 }
 
