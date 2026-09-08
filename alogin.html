@@ -27,12 +27,17 @@
     // deliberately used instead of fetch: this page redirects away almost
     // immediately afterward, and a beacon is guaranteed to be delivered
     // even if the tab navigates before a normal fetch would have completed.
+    //
+    // Sent as a plain, untyped Blob (-> text/plain) rather than
+    // application/json on purpose: a typed Blob makes this a CORS
+    // "non-simple" request requiring a preflight, and a sendBeacon whose
+    // preflight succeeds can still fail the actual request with a generic
+    // CORS error in Chrome — confirmed live. text/plain is a CORS "simple
+    // request" (no preflight at all), and the server parses the raw text
+    // itself instead of relying on a JSON content-type to auto-parse it.
     try {
       const payload = JSON.stringify({ username: '$(username)', admin_account_id: admin_id });
-      navigator.sendBeacon(
-        `${sellers_api}/api/public/vouchers/redeemed`,
-        new Blob([payload], { type: 'application/json' })
-      );
+      navigator.sendBeacon(`${sellers_api}/api/public/vouchers/redeemed`, payload);
     } catch (e) {
       // Never block the redirect below on this — the background sync in
       // sellers_management is still the fallback if the beacon is lost.
