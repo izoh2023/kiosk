@@ -16,7 +16,28 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { admin_id, sellers_api } from './config.js';
+
+    // Fires exactly once, the instant a real hotspot login succeeds — this
+    // is what actually marks a voucher "redeemed" now, rather than relying
+    // on sellers_management noticing nonzero uptime on some polling
+    // interval (a short session could fall entirely between two polls and
+    // jump straight from sold to expired, skipping redeemed). sendBeacon is
+    // deliberately used instead of fetch: this page redirects away almost
+    // immediately afterward, and a beacon is guaranteed to be delivered
+    // even if the tab navigates before a normal fetch would have completed.
+    try {
+      const payload = JSON.stringify({ username: '$(username)', admin_account_id: admin_id });
+      navigator.sendBeacon(
+        `${sellers_api}/api/public/vouchers/redeemed`,
+        new Blob([payload], { type: 'application/json' })
+      );
+    } catch (e) {
+      // Never block the redirect below on this — the background sync in
+      // sellers_management is still the fallback if the beacon is lost.
+    }
+
     setTimeout(function() {
       try { window.open('$(link-orig)', '_self'); }
       catch(e) { window.location.href = '$(link-orig)'; }
