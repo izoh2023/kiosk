@@ -1,4 +1,14 @@
 import { admin_id, logo_filename, phoneNumber, router_id, router_api, admin_api, payment_api, captive_api, currency } from "./config.js";
+// Namespace import (not a named one) for access_mode specifically: a
+// router that hasn't had its captive portal resynced since this field was
+// added still has an OLDER config.js with no such export at all, and a
+// named import of a genuinely missing export throws a SyntaxError at
+// module-load time — which would take down the ENTIRE page, not just
+// degrade gracefully. Property access on a namespace object never throws,
+// so this falls back to "both" (today's only behavior) until that router
+// is resynced.
+import * as configModule from "./config.js";
+const access_mode = configModule.access_mode ?? "both";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURATION
@@ -24,6 +34,19 @@ logoEl.style.background = `url('${logo_filename}') center / cover no-repeat`;
 
 const telEl = document.getElementById('tel');
 telEl.innerHTML = phoneNumber;
+
+// access_mode only ever hides the self-serve M-Pesa "plans" card — in
+// 'seller' mode there's no STK push configured, so buying a plan directly
+// isn't an option and customers must get a voucher from a seller instead.
+// The sign-in card is NEVER hidden, even in 'self_serve' mode: a customer
+// who just paid via STK push but whose auto-login (showVoucher's form
+// submit, above) failed or was interrupted still needs a way back in, and
+// their payment reference code (the M-Pesa receipt — see showVoucher) IS
+// their voucher username, so sign-in doubles as their retry path. The
+// ad-supported "Free WiFi" card is a third, independent monetization path
+// and isn't affected by this toggle either way.
+const plansCard = document.querySelector('.card--plans');
+if (access_mode === 'seller' && plansCard) plansCard.style.display = 'none';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -244,7 +267,14 @@ function showVoucher(receiptNo, duration) {
 /** Read the device MAC injected by MikroTik as a URL query param */
 function getMac() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('mac') || params.get('mac_address') || '00:00:00:00:00:00';
+  const queryMac = params.get('mac') || params.get('mac_address');
+  const injectedMac = window._hotspotMac;
+  // Outside MikroTik (for example local file development), the template
+  // token remains literally "$(mac)". Never send that or a shared all-zero
+  // fallback to the tracking API because it merges every device's limits.
+  if (queryMac) return queryMac;
+  if (injectedMac && injectedMac !== '$(mac)') return injectedMac;
+  return null;
 }
 
 /** Random hex password for the throwaway hotspot user */
@@ -286,10 +316,14 @@ function adShowError(msg) {
 async function adFlowStart() {
   adShowStep('ad-step-loading');
   const mac = getMac();
+  if (!mac) {
+    adShowError('This device could not be identified by the hotspot. Reload the login page and try again.');
+    return;
+  }
 
   let ad;
   try {
-    const res = await fetch(`${config.captiveApiBase}/ad?mac_address=${mac}`);
+    const res = await fetch(`${config.captiveApiBase}/ad?mac_address=${encodeURIComponent(mac)}`);
     if (res.status === 404) {
       adShowError('No ads available right now. Please use a voucher or try again later.');
       return;
@@ -395,6 +429,10 @@ async function adFlowClaim() {
   claimMsg.style.display = 'block';
 
   const mac = getMac();
+  if (!mac) {
+    adShowError('This device could not be identified by the hotspot. Reload the login page and try again.');
+    return;
+  }
 
   // 2a. Redeem with captive API
   let redeemData;

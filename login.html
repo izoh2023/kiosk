@@ -157,6 +157,10 @@
   </div>
 
   <script>
+    // MikroTik expands this server-side for each captive client. Keeping it
+    // on window lets the module script use the real device identity even
+    // when the login URL itself has no mac/mac_address query parameter.
+    window._hotspotMac = '$(mac)';
     $(if chap-id)
     window._chapId = '$(chap-id)';
     window._chapChallenge = '$(chap-challenge)';
