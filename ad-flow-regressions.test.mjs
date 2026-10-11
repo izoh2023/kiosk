@@ -32,3 +32,11 @@ test('CTA is used only as the post-redemption login destination', () => {
   assert.match(app, /getPostRedemptionDestination\(_adData\?\.cta_url\)/);
   assert.match(app, /url\.protocol === 'https:' \|\| url\.protocol === 'http:'/);
 });
+
+test('image ads run for seven seconds and videos run for their real duration', () => {
+  assert.match(app, /const IMAGE_AD_SECONDS = 7/);
+  assert.match(app, /ad\.media_content_type\?\.startsWith\('video\/'\)/);
+  assert.match(app, /Math\.ceil\(vid\.duration\)/);
+  assert.match(app, /_adStartCountdown\(_adTotal, vid\)/);
+  assert.match(app, /if \(mediaElement && \(mediaElement\.paused \|\| document\.hidden\)\) return/);
+});

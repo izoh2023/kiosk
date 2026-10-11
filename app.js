@@ -304,7 +304,8 @@ function randomPass(len = 12) {
 let _adData    = null;   // object returned by GET /captive/ad
 let _adTimer   = null;
 let _adElapsed = 0;
-let _adTotal   = 30;    // seconds forced to watch (capped below)
+const IMAGE_AD_SECONDS = 7;
+let _adTotal   = IMAGE_AD_SECONDS;
 let _adUser    = null;  // { username, password } for MikroTik login
 let _adClaiming = false;
 
@@ -352,23 +353,51 @@ async function adFlowStart() {
   }
 
   _adData  = ad;
-  _adTotal = Math.min(30, (ad.reward_minutes || 1) * 60); // cap forced watch at 30 s
+  _adTotal = IMAGE_AD_SECONDS;
 
   // Populate the modal media
   const img = document.getElementById('ad-img');
   const vid = document.getElementById('ad-vid');
-  const isVideo = /\.(mp4|webm|mov|ogg)(\?|$)/i.test(ad.media_url);
+  const isVideo = ad.media_content_type?.startsWith('video/')
+    || /\.(mp4|webm)(\?|$)/i.test(ad.media_url);
+
+  clearInterval(_adTimer);
+  img.onload = null;
+  img.onerror = null;
+  vid.onloadedmetadata = null;
+  vid.onerror = null;
+  vid.pause();
+  vid.removeAttribute('src');
+  vid.load();
 
   if (isVideo) {
-    vid.src = ad.media_url;
     vid.style.display = 'block';
+    vid.controls = true;
     img.style.display = 'none';
+    vid.onloadedmetadata = () => {
+      _adTotal = Number.isFinite(vid.duration) && vid.duration > 0
+        ? Math.ceil(vid.duration)
+        : 30;
+      document.getElementById('ad-countdown-text').textContent = _adTotal;
+      document.getElementById('ad-claim-btn').textContent = `Watching… ${_adTotal}s remaining`;
+      vid.play().catch(() => {});
+      _adStartCountdown(_adTotal, vid);
+    };
+    vid.onerror = () => {
+      hide(document.getElementById('ad-modal'));
+      adShowError('This video could not be loaded. Please try another ad.');
+    };
+    vid.src = ad.media_url;
     vid.load();
-    vid.play().catch(() => {});
   } else {
-    img.src = ad.media_url;
     img.style.display = 'block';
     vid.style.display = 'none';
+    img.onload = () => _adStartCountdown(IMAGE_AD_SECONDS);
+    img.onerror = () => {
+      hide(document.getElementById('ad-modal'));
+      adShowError('This image could not be loaded. Please try another ad.');
+    };
+    img.src = ad.media_url;
   }
 
   // The fetch already recorded an impression. X is the only dismissal path;
@@ -391,12 +420,11 @@ async function adFlowStart() {
   // Show the modal
   show(document.getElementById('ad-modal'));
 
-  _adStartCountdown(_adTotal);
 }
 window.adFlowStart = adFlowStart;
 
 // Countdown timer running inside the modal
-function _adStartCountdown(totalSecs) {
+function _adStartCountdown(totalSecs, mediaElement = null) {
   _adElapsed = 0;
   clearInterval(_adTimer);
 
@@ -405,6 +433,9 @@ function _adStartCountdown(totalSecs) {
   const claimBtn  = document.getElementById('ad-claim-btn');
 
   _adTimer = setInterval(() => {
+    // A video only earns watch time while it is actually playing in the
+    // foreground. Images remain a short, fixed seven-second exposure.
+    if (mediaElement && (mediaElement.paused || document.hidden)) return;
     _adElapsed++;
     const pct = (_adElapsed / totalSecs) * 100;
     fill.style.width   = pct.toFixed(1) + '%';
