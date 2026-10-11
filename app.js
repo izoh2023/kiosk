@@ -329,6 +329,38 @@ function adShowError(msg) {
   adShowStep('ad-step-error');
 }
 
+function formatRetryAfter(totalSeconds) {
+  const minutes = Math.max(1, Math.ceil((totalSeconds || 0) / 60));
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  const hours = Math.ceil(minutes / 60);
+  return `${hours} hour${hours === 1 ? '' : 's'}`;
+}
+
+function showAdIneligible(eligibility = {}) {
+  const message = eligibility.retry_after_seconds
+    ? `Free WiFi through ads is available again in about ${formatRetryAfter(eligibility.retry_after_seconds)}.`
+    : (eligibility.error || eligibility.reason || 'This ad has already rewarded this device. Try another ad later.');
+  const usedMessage = document.getElementById('ad-used-msg');
+  if (usedMessage) usedMessage.textContent = message;
+  const watchButton = document.getElementById('ad-watch-button');
+  if (watchButton) watchButton.disabled = true;
+  adShowStep('ad-step-used');
+}
+
+async function loadAdEligibility() {
+  const mac = getMac();
+  if (!mac) return;
+  try {
+    const response = await fetch(`${config.captiveApiBase}/eligibility?mac_address=${encodeURIComponent(mac)}`);
+    if (!response.ok) return;
+    const eligibility = await response.json();
+    if (!eligibility.eligible) showAdIneligible(eligibility);
+  } catch (_) {
+    // Keep the button available when the eligibility check itself is offline;
+    // the redeem endpoint remains authoritative and protected.
+  }
+}
+
 // ── Step 1: user taps "Watch ad" ──────────────────────────────────────────────
 async function adFlowStart() {
   adShowStep('ad-step-loading');
@@ -341,6 +373,10 @@ async function adFlowStart() {
   let ad;
   try {
     const res = await fetch(`${config.captiveApiBase}/ad?mac_address=${encodeURIComponent(mac)}`);
+    if (res.status === 429) {
+      showAdIneligible(await res.json().catch(() => ({})));
+      return;
+    }
     if (res.status === 404) {
       adShowError('No ads available right now. Please use a voucher or try again later.');
       return;
@@ -493,7 +529,7 @@ async function adFlowClaim() {
     });
     if (res.status === 429) {
       hide(document.getElementById('ad-modal'));
-      adShowStep('ad-step-used');
+      showAdIneligible(await res.json().catch(() => ({})));
       _adClaiming = false;
       return;
     }
@@ -569,4 +605,5 @@ function _adAutoLogin() {
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadPackages();
+  loadAdEligibility();
 });

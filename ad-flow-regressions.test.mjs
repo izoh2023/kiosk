@@ -40,3 +40,11 @@ test('image ads run for seven seconds and videos run for their real duration', (
   assert.match(app, /_adStartCountdown\(_adTotal, vid\)/);
   assert.match(app, /if \(mediaElement && \(mediaElement\.paused \|\| document\.hidden\)\) return/);
 });
+
+test('portal disables ad access while the device is in its reward cooldown', () => {
+  assert.match(login, /id="ad-watch-button"/);
+  assert.match(login, /id="ad-used-msg"/);
+  assert.match(app, /\/eligibility\?mac_address=/);
+  assert.match(app, /retry_after_seconds/);
+  assert.match(app, /showAdIneligible/);
+});

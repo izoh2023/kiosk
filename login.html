@@ -63,7 +63,7 @@
           <p class="small" style="margin:0">Watch a short ad and browse free &mdash; no voucher needed.</p>
 
           <div class="ad-step active" id="ad-step-start">
-            <button class="ad-watch-btn" onclick="adFlowStart()">Watch ad &middot; get free WiFi</button>
+            <button id="ad-watch-button" class="ad-watch-btn" onclick="adFlowStart()">Watch ad &middot; get free WiFi</button>
           </div>
           <div class="ad-step" id="ad-step-loading">
             <p class="small" style="margin:0">Finding an ad&hellip;</p>
@@ -74,7 +74,7 @@
             <p class="small" style="margin:0;text-align:center"><span id="ad-reward-text">Free</span> WiFi activated.</p>
           </div>
           <div class="ad-step" id="ad-step-used">
-            <p class="small" style="color:#b06000;margin:0">You've already used a free session today.</p>
+            <p class="small" style="color:#b06000;margin:0" id="ad-used-msg">Free ad access is temporarily unavailable.</p>
           </div>
           <div class="ad-step" id="ad-step-error">
             <p class="small" style="color:var(--danger);margin:0" id="ad-error-msg">Something went wrong.</p>
