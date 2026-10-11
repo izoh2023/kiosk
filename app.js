@@ -452,6 +452,7 @@ async function adFlowClaim() {
         mac_address:           mac,
         media_watched_seconds: _adElapsed,
         country_code:          navigator.language?.split('-')[1] || null,
+        router_id:              config.hotspotRouterId,
       }),
     });
     if (res.status === 429) {
@@ -470,40 +471,10 @@ async function adFlowClaim() {
   }
 
   const rewardMinutes = redeemData.reward_minutes || _adData.reward_minutes || 30;
-
-  // 2b. Create MikroTik hotspot user via Python /api/users
-  const username = mac.replace(/[^a-zA-Z0-9]/g, ''); // strip colons → plain hex string
-  const password = randomPass();
-  _adUser = { username, password };
-
-  try {
-    const res = await fetch(`${config.routerApiBase}/api/users`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type:       'hotspot',
-        profile_id: config.hotspotProfile,
-        username,
-        password,
-        disabled:   false,
-        comment:    `ad-reward:${_adData.id} mac:${mac} mins:${rewardMinutes}`,
-        router_id:  config.hotspotRouterId,
-        mac_address: mac,
-        limit_uptime: `${rewardMinutes}m`,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      // Tolerate "already exists" — just reuse the existing user
-      const detail = err?.detail || '';
-      if (!detail.toLowerCase().includes('already exist')) {
-        throw new Error(detail || `HTTP ${res.status}`);
-      }
-    }
-  } catch (e) {
+  _adUser = { username: redeemData.username, password: redeemData.password };
+  if (!_adUser.username || !_adUser.password) {
     hide(document.getElementById('ad-modal'));
-    adShowError(`Could not activate WiFi: ${e.message}. Please show this to an attendant.`);
+    adShowError('The reward was recorded but no login credentials were returned. Please ask an attendant for help.');
     _adClaiming = false;
     return;
   }

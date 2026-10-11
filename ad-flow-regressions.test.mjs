@@ -11,9 +11,11 @@ test('RouterOS login URL is injected through processed HTML', () => {
   assert.doesNotMatch(app, /linkLoginOnly:\s+'\$\(link-login-only\)'/);
 });
 
-test('countdown automatically redeems and reward creation is bounded', () => {
+test('countdown automatically redeems through the backend orchestrator', () => {
   assert.match(app, /void adFlowClaim\(\)/);
-  assert.match(app, /mac_address:\s+mac/);
-  assert.match(app, /limit_uptime:\s+`\$\{rewardMinutes\}m`/);
+  assert.match(app, /router_id:\s+config\.hotspotRouterId/);
+  assert.match(app, /redeemData\.username/);
+  assert.match(app, /redeemData\.password/);
+  assert.doesNotMatch(app, /routerApiBase}\/api\/users/);
   assert.doesNotMatch(login, /id="ad-claim-btn"[^>]+onclick=/);
 });
