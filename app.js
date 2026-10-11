@@ -67,6 +67,20 @@ function chapHash(pwd) {
   return pwd;
 }
 
+function getPostRedemptionDestination(ctaUrl) {
+  if (ctaUrl) {
+    try {
+      const url = new URL(ctaUrl);
+      if (url.protocol === 'https:' || url.protocol === 'http:') return url.href;
+    } catch (_) {
+      // Invalid advertiser URLs fall through to the hotspot's original target.
+    }
+  }
+  return new URLSearchParams(window.location.search).get('dst')
+    || window._linkOrig
+    || 'http://google.com';
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PACKAGE RENDERING  (unchanged)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -357,15 +371,6 @@ async function adFlowStart() {
     vid.style.display = 'none';
   }
 
-  // CTA link
-  const ctaLink = document.getElementById('ad-cta-link');
-  if (ad.cta_url) {
-    ctaLink.href          = ad.cta_url;
-    ctaLink.style.display = 'inline';
-  } else {
-    ctaLink.style.display = 'none';
-  }
-
   // The fetch already recorded an impression. X is the only dismissal path;
   // backdrop clicks do not close this modal and therefore cannot accidentally
   // masquerade as a redemption.
@@ -514,7 +519,9 @@ function _adAutoLogin() {
   const fields = {
     username: _adUser.username,
     password: chapHash(_adUser.password),
-    dst: new URLSearchParams(window.location.search).get('dst') || window._linkOrig || 'http://google.com',
+    // RouterOS follows this only after accepting the reward credentials, so
+    // advertisers do not need to be added to the pre-auth walled garden.
+    dst: getPostRedemptionDestination(_adData?.cta_url),
   };
   for (const [k, v] of Object.entries(fields)) {
     const inp = document.createElement('input');

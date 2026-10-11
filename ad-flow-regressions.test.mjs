@@ -25,3 +25,10 @@ test('countdown automatically redeems through the backend orchestrator', () => {
   assert.doesNotMatch(app, /routerApiBase}\/api\/users/);
   assert.doesNotMatch(login, /id="ad-claim-btn"[^>]+onclick=/);
 });
+
+test('CTA is used only as the post-redemption login destination', () => {
+  assert.doesNotMatch(login, /id="ad-cta-link"/);
+  assert.doesNotMatch(app, /getElementById\('ad-cta-link'\)/);
+  assert.match(app, /getPostRedemptionDestination\(_adData\?\.cta_url\)/);
+  assert.match(app, /url\.protocol === 'https:' \|\| url\.protocol === 'http:'/);
+});
