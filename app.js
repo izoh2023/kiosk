@@ -493,9 +493,22 @@ window.adFlowClaim = adFlowClaim;
 /** Programmatically POST to MikroTik's $(link-login-only) endpoint */
 function _adAutoLogin() {
   if (!_adUser) return;
+  const nativeLoginUrl = document.forms.login?.action;
+  const isResolvedHotspotUrl = (value) =>
+    Boolean(value && !value.includes('$(') && /^https?:\/\//i.test(value));
+  const loginUrl = isResolvedHotspotUrl(nativeLoginUrl)
+    ? nativeLoginUrl
+    : config.linkLoginOnly;
+
+  if (!isResolvedHotspotUrl(loginUrl)) {
+    _adClaiming = false;
+    adShowError('Free WiFi was activated, but the router login address is unavailable. Reload the portal and sign in again.');
+    return;
+  }
+
   const form = document.createElement('form');
   form.method = 'POST';
-  form.action = config.linkLoginOnly;
+  form.action = loginUrl;
   form.style.display = 'none';
 
   const fields = {

@@ -11,6 +11,12 @@ test('RouterOS login URL is injected through processed HTML', () => {
   assert.doesNotMatch(app, /linkLoginOnly:\s+'\$\(link-login-only\)'/);
 });
 
+test('ad auto-login prefers the native RouterOS form action', () => {
+  assert.match(app, /document\.forms\.login\?\.action/);
+  assert.match(app, /isResolvedHotspotUrl/);
+  assert.match(app, /form\.action = loginUrl/);
+});
+
 test('countdown automatically redeems through the backend orchestrator', () => {
   assert.match(app, /void adFlowClaim\(\)/);
   assert.match(app, /router_id:\s+config\.hotspotRouterId/);
