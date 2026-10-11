@@ -18,7 +18,8 @@ const config = {
   adminPackageEndpoint: `${admin_api}/api/package?admin=${admin_id}&kiosk=true`,
   payEndpoint:          `${payment_api}/api/payment`,
   statusEndpoint:       `${payment_api}/payment-status`,
-  linkLoginOnly:        '$(link-login-only)',
+  // RouterOS expands login.html, not this separately-served module file.
+  linkLoginOnly:        window._linkLoginOnly,
 
   captiveApiBase:  `${captive_api}/captive`,
   routerApiBase:   router_api,
@@ -291,6 +292,7 @@ let _adTimer   = null;
 let _adElapsed = 0;
 let _adTotal   = 30;    // seconds forced to watch (capped below)
 let _adUser    = null;  // { username, password } for MikroTik login
+let _adClaiming = false;
 
 /** Switch the inline ad-card step */
 function adShowStep(id) {
@@ -364,10 +366,12 @@ async function adFlowStart() {
     ctaLink.style.display = 'none';
   }
 
-  // Lock the modal close button until countdown ends
+  // The fetch already recorded an impression. X is the only dismissal path;
+  // backdrop clicks do not close this modal and therefore cannot accidentally
+  // masquerade as a redemption.
   const closeBtn = document.getElementById('ad-modal-close');
-  closeBtn.style.opacity       = '0.3';
-  closeBtn.style.pointerEvents = 'none';
+  closeBtn.style.opacity       = '1';
+  closeBtn.style.pointerEvents = 'auto';
 
   // Reset claim button
   const claimBtn = document.getElementById('ad-claim-btn');
@@ -394,7 +398,6 @@ function _adStartCountdown(totalSecs) {
   const fill      = document.getElementById('ad-progress-fill');
   const cdText    = document.getElementById('ad-countdown-text');
   const claimBtn  = document.getElementById('ad-claim-btn');
-  const closeBtn  = document.getElementById('ad-modal-close');
 
   _adTimer = setInterval(() => {
     _adElapsed++;
@@ -405,23 +408,26 @@ function _adStartCountdown(totalSecs) {
 
     if (_adElapsed >= totalSecs) {
       clearInterval(_adTimer);
-      claimBtn.disabled    = false;
-      claimBtn.textContent = 'Claim free WiFi →';
-      // Unlock modal close
-      closeBtn.style.opacity       = '1';
-      closeBtn.style.pointerEvents = 'auto';
+      claimBtn.textContent = 'Activating free WiFi…';
+      void adFlowClaim();
     }
   }, 1000);
 }
 
 // Close the ad modal (only reachable after countdown unlocks the button)
 function adModalClose() {
+  if (_adClaiming) return;
+  clearInterval(_adTimer);
+  document.getElementById('ad-vid').pause();
   hide(document.getElementById('ad-modal'));
+  adFlowReset();
 }
 window.adModalClose = adModalClose;
 
 // ── Step 2: user taps "Claim free WiFi" ──────────────────────────────────────
 async function adFlowClaim() {
+  if (_adClaiming || !_adData) return;
+  _adClaiming = true;
   const claimBtn  = document.getElementById('ad-claim-btn');
   const claimMsg  = document.getElementById('ad-claiming-msg');
   claimBtn.disabled    = true;
@@ -430,6 +436,7 @@ async function adFlowClaim() {
 
   const mac = getMac();
   if (!mac) {
+    _adClaiming = false;
     adShowError('This device could not be identified by the hotspot. Reload the login page and try again.');
     return;
   }
@@ -450,6 +457,7 @@ async function adFlowClaim() {
     if (res.status === 429) {
       hide(document.getElementById('ad-modal'));
       adShowStep('ad-step-used');
+      _adClaiming = false;
       return;
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -457,6 +465,7 @@ async function adFlowClaim() {
   } catch (e) {
     hide(document.getElementById('ad-modal'));
     adShowError('Redemption failed. Please try again or ask an attendant for a voucher.');
+    _adClaiming = false;
     return;
   }
 
@@ -479,6 +488,8 @@ async function adFlowClaim() {
         disabled:   false,
         comment:    `ad-reward:${_adData.id} mac:${mac} mins:${rewardMinutes}`,
         router_id:  config.hotspotRouterId,
+        mac_address: mac,
+        limit_uptime: `${rewardMinutes}m`,
       }),
     });
 
@@ -493,6 +504,7 @@ async function adFlowClaim() {
   } catch (e) {
     hide(document.getElementById('ad-modal'));
     adShowError(`Could not activate WiFi: ${e.message}. Please show this to an attendant.`);
+    _adClaiming = false;
     return;
   }
 
@@ -518,7 +530,7 @@ function _adAutoLogin() {
   const fields = {
     username: _adUser.username,
     password: chapHash(_adUser.password),
-    dst: new URLSearchParams(window.location.search).get('dst') || 'http://google.com',
+    dst: new URLSearchParams(window.location.search).get('dst') || window._linkOrig || 'http://google.com',
   };
   for (const [k, v] of Object.entries(fields)) {
     const inp = document.createElement('input');

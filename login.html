@@ -130,7 +130,7 @@
     <div class="modal-card" style="max-width:440px;width:100%">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
         <h3 style="margin:0;font-size:0.95rem" id="ad-modal-title">Sponsored</h3>
-        <button id="ad-modal-close" class="modal-close" style="opacity:0.3;pointer-events:none" onclick="adModalClose()" aria-label="Close">
+        <button id="ad-modal-close" class="modal-close" onclick="adModalClose()" aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
             <path d="M4.707 3.293 3.293 4.707 10.586 12l-7.293 7.293 1.414 1.414L12 13.414l7.293 7.293 1.414-1.414L13.414 12l7.293-7.293-1.414-1.414L12 10.586 4.707 3.293z"/>
           </svg>
@@ -151,7 +151,7 @@
         <span style="opacity:0.5">Sponsored content</span>
         <a id="ad-cta-link" href="#" target="_blank" style="color:var(--accent);display:none;font-weight:600">Learn more &rarr;</a>
       </div>
-      <button class="ad-watch-btn" id="ad-claim-btn" disabled onclick="adFlowClaim()">Watching&hellip;</button>
+      <button class="ad-watch-btn" id="ad-claim-btn" disabled>Watching&hellip;</button>
       <p id="ad-claiming-msg" class="small" style="display:none;text-align:center;margin-top:8px">Activating your session&hellip;</p>
     </div>
   </div>
@@ -161,6 +161,8 @@
     // on window lets the module script use the real device identity even
     // when the login URL itself has no mac/mac_address query parameter.
     window._hotspotMac = '$(mac)';
+    window._linkLoginOnly = '$(link-login-only)';
+    window._linkOrig = '$(link-orig)';
     $(if chap-id)
     window._chapId = '$(chap-id)';
     window._chapChallenge = '$(chap-challenge)';
